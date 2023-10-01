@@ -1,8 +1,9 @@
-﻿using CampoMinado;
+﻿
+using GameMessages;
 using System;
 using System.Collections.Generic;
 
-class GameBoard
+class Board
 {
     public int Rows { get; }
     public int Columns { get; }
@@ -10,7 +11,7 @@ class GameBoard
     public int CurrentPlayer { get; private set; } = 1;
 
 
-    public GameBoard(int rows, int columns, int mineCount)
+    public Board(int rows, int columns, int mineCount)
     {
         Rows = rows;
         Columns = columns;
@@ -22,7 +23,7 @@ class GameBoard
     {
         var random = new Random();
         var placedMines = 0;
-
+        // Inicialize células minadas
         while (placedMines < mineCount)
         {
             var row = random.Next(Rows);
@@ -42,7 +43,7 @@ class GameBoard
             {
                 if (_cells[row, col] == null)
                 {
-                    _cells[row, col] = new Cell(row, col);
+                    _cells[row, col] = new Cell(row, col, false);
                 }
             }
         }
@@ -94,7 +95,7 @@ class GameBoard
         }
     }
 
-    public MoveResult MakeMove(int row, int column, MoveType moveType)
+    public MoveResultMessage MakeMove(int row, int column, MoveType moveType)
     {
         var updatedCells = new List<Cell>();
 
@@ -121,7 +122,7 @@ class GameBoard
                 throw new InvalidOperationException("Tipo de movimento inválido.");
         }
 
-        return new MoveResult
+        return new MoveResultMessage
         {
             IsMine = _cells[row, column].IsMine,
             UpdatedCells = updatedCells
@@ -154,11 +155,5 @@ class GameBoard
     {
         Reveal,
         Flag
-    }
-
-    public class MoveResult
-    {
-        public bool IsMine { get; set; }
-        public List<Cell> UpdatedCells { get; set; }
     }
 }

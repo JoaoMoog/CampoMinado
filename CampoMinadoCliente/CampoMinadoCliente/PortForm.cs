@@ -5,11 +5,14 @@
     {
         private TextBox _portTextBox;
         private Button _connectButton;
+        private ClientConnection _clientConnection;
 
         public int Port { get; private set; }
 
-        public PortForm()
+        public PortForm(ClientConnection clientConnection)
         {
+            _clientConnection = clientConnection;
+
             _portTextBox = new TextBox
             {
                 Location = new Point(15, 15),
@@ -35,7 +38,11 @@
                 if (isConnected)
                 {
                     DialogResult = DialogResult.OK;
-                    Close();
+                    this.Hide();  // Esconde o PortForm em vez de fechar
+
+                    // Criar e mostrar o Form1
+                    var form1 = new Form1(_clientConnection);
+                    form1.Show();
                 }
                 else
                 {
@@ -47,6 +54,9 @@
                 MessageBox.Show("Invalid port number. Please enter a number between 1 and 65535.");
             }
         }
+
+
+
 
     }
 }

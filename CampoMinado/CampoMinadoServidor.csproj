@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GameLibrary">
+      <HintPath>..\..\GameLibrary\GameLibrary\bin\Release\net6.0\GameLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -46,8 +49,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Conexao\Cell.cs" />
-    <Compile Include="Conexao\MoveMessage.cs" />
     <Compile Include="Conexao\Server.cs" />
     <Compile Include="Conexao\Utils.cs" />
     <Compile Include="Game\Board.cs" />

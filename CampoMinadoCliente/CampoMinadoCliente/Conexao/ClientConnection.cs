@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using GameMessages;
 using Newtonsoft.Json;
 
 public class ClientConnection
@@ -29,10 +30,9 @@ public class ClientConnection
         }
     }
 
-
     public async Task SendMessageAsync(string message)
     {
-        if (_writer != null)
+        if (_writer != null && _client.Connected)
         {
             await _writer.WriteLineAsync(message);
         }
@@ -44,7 +44,7 @@ public class ClientConnection
 
     public async Task<string?> ReceiveMessageAsync()  // Indicando que o método pode retornar nulo
     {
-        if (_reader != null)
+        if (_reader != null && _client.Connected)
         {
             return await _reader.ReadLineAsync();
         }
@@ -68,6 +68,7 @@ public class ClientConnection
             {
                 while (_client.Connected)
                 {
+                    Console.WriteLine("Waiting for server message...");  // Log adicional
                     var message = await ReceiveMessageAsync();
                     if (message != null)
                     {

@@ -14,20 +14,9 @@ static class Program
 
         var clientConnection = new ClientConnection();
 
-        using (var portForm = new PortForm(clientConnection))
-        {
-            var dialogResult = portForm.ShowDialog();
-            if (dialogResult == DialogResult.OK)
-            {
-                // Conexão bem-sucedida, prosseguir para abrir o tabuleiro
-                await clientConnection.StartReceivingMessages();
-                Application.Run(new Form(clientConnection));
-            }
-            else
-            {
-                // A conexão falhou ou o formulário foi fechado sem conectar
-            }
-        }
+        // Passa a clientConnection para o PortForm
+        Application.Run(new PortForm(clientConnection));
     }
+
 
 }

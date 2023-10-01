@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using GameMessages;
 using Newtonsoft.Json;
 
 namespace CampoMinadoCliente
@@ -18,6 +19,7 @@ namespace CampoMinadoCliente
             _clientConnection.OnServerMessageReceived += HandleServerMessage;
             InitializeComponent();
             InitializeBoard();
+            _clientConnection.StartReceivingMessages();
         }
 
         private void InitializeBoard()
@@ -46,7 +48,6 @@ namespace CampoMinadoCliente
         {
             try
             {
-                Console.WriteLine("OnCellButtonClicked chamado.");
                 var button = (Button)sender;
                 var position = (Tuple<int, int>)button.Tag;
                 var row = position.Item1;
@@ -58,7 +59,7 @@ namespace CampoMinadoCliente
                     moveType = "Flag";
                 }
 
-                var moveMessage = new MoveMessage
+                var moveMessage = new MoveResultMessage
                 {
                     Action = "Move",
                     Player = 1,  // Fixed player number to 1 as it's a single player game
@@ -68,12 +69,10 @@ namespace CampoMinadoCliente
                 };
 
                 var messageJson = JsonConvert.SerializeObject(moveMessage);
-                Console.WriteLine($"Enviando mensagem: {messageJson}");
                 await _clientConnection.SendMessageAsync(messageJson);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
                 MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -85,9 +84,9 @@ namespace CampoMinadoCliente
                 var button = _buttons[cell.Row, cell.Column];
                 if (cell.IsRevealed)
                 {
-                    button.Text = cell.IsMine ? "F" : "X";
+                    button.Text = cell.IsMine ? "F" : cell.AdjacentMines.ToString();
                     button.Enabled = false;
-                    button.BackColor = cell.IsMine ? Color.Black : Color.Red;
+                    button.BackColor = cell.IsMine ? Color.Red : Color.White;
                 }
                 if (cell.IsFlagged)
                 {
@@ -105,6 +104,11 @@ namespace CampoMinadoCliente
                     btn.Enabled = false;
                 }
             }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
