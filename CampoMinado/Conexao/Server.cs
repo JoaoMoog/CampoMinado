@@ -17,7 +17,7 @@ namespace CampoMinadoServidor
         private TcpClient _player1;
         private Board _board;
         private bool _running;
-        private SemaphoreSlim _moveSemaphore = new SemaphoreSlim(1, 1);
+        //private SemaphoreSlim _moveSemaphore = new SemaphoreSlim(1, 5);
 
         public Server(int port)
         {
@@ -32,7 +32,7 @@ namespace CampoMinadoServidor
             _player1 = await _listener.AcceptTcpClientAsync();
             Console.WriteLine("Jogador conectado.");
 
-            _board = new Board(10, 10, 20);
+            _board = new Board(10, 10);
 
             _running = true;
             await RunGameLoop();
@@ -62,10 +62,11 @@ namespace CampoMinadoServidor
                 var stream = client.GetStream();
                 var reader = new StreamReader(stream, Encoding.UTF8);
                 var messageJson = await reader.ReadLineAsync();
+                Console.WriteLine($"Mensagem recebida do cliente: {messageJson}");  // Log the message
                 var message = JsonConvert.DeserializeObject<MoveResultMessage>(messageJson);
                 return message;
             }
-            throw new InvalidOperationException("Client is not connected.");
+            throw new InvalidOperationException("Cliente não conectado");
         }
 
         private async Task SendMessageAsync(TcpClient client, string message)
@@ -75,7 +76,7 @@ namespace CampoMinadoServidor
                 var stream = client.GetStream();
                 var writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true };
                 await writer.WriteLineAsync(message);
-                Console.WriteLine($"Message sent to client: {message}");  // Log the message
+                Console.WriteLine($"Mensagem enviada para o cliente: {message}");  // Log the message
             }
             else
             {
@@ -87,9 +88,13 @@ namespace CampoMinadoServidor
         {
             try
             {
-                while (_running)
+                while (_running && _player1.Connected)  // Check if the client is still connected
                 {
-                    await _moveSemaphore.WaitAsync();
+                    Console.WriteLine("Parou aqui essa merda toma no cu");
+
+                    //await _moveSemaphore.WaitAsync();
+
+                    Console.WriteLine("Passou dessa merda");
 
                     var messageFromPlayer1 = await ReceiveMessageAsync(_player1);
                     var resultFromPlayer1 = ProcessMessage(messageFromPlayer1);
@@ -123,7 +128,7 @@ namespace CampoMinadoServidor
             }
             finally
             {
-                _moveSemaphore.Release();
+                //_moveSemaphore.Release();
             }
 
             // Move these lines out of the finally block
@@ -132,10 +137,11 @@ namespace CampoMinadoServidor
             Console.WriteLine("Servidor encerrado.");
         }
 
-
         public void Stop()
         {
             _running = false;
+            _player1?.Close();  // Close the connection to the player
+            _listener?.Stop();  // Stop listening for new connections
         }
     }
 }

@@ -34,12 +34,14 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(329, 305);
-            Name = "Form1";
+            ClientSize = new Size(486, 357);
+            Name = "Campo Minado";
             Text = "Campo Minado";
             Load += Form1_Load;
             ResumeLayout(false);
+            PerformLayout();
         }
+
 
         #endregion
     }

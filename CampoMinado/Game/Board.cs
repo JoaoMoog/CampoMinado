@@ -11,18 +11,21 @@ class Board
     public int CurrentPlayer { get; private set; } = 1;
 
 
-    public Board(int rows, int columns, int mineCount)
+    public Board(int rows, int columns)
     {
         Rows = rows;
         Columns = columns;
         _cells = new Cell[rows, columns];
-        InitializeBoard(mineCount);
+        InitializeBoard();
     }
 
-    private void InitializeBoard(int mineCount)
+    private void InitializeBoard()
     {
+        // Escolha um número aleatório de minas entre 5 e 8
         var random = new Random();
+        int mineCount = random.Next(5, 9);
         var placedMines = 0;
+
         // Inicialize células minadas
         while (placedMines < mineCount)
         {
@@ -45,6 +48,15 @@ class Board
                 {
                     _cells[row, col] = new Cell(row, col, false);
                 }
+            }
+        }
+
+        // Calcule o número de minas adjacentes para cada célula
+        for (var row = 0; row < Rows; row++)
+        {
+            for (var col = 0; col < Columns; col++)
+            {
+                _cells[row, col].AdjacentMines = GetAdjacentMineCount(row, col);
             }
         }
     }

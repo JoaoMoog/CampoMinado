@@ -11,7 +11,7 @@ public class ClientConnection
     private TcpClient _client = new();  // Inicialização direta
     private StreamReader _reader;
     private StreamWriter _writer;
-    public event Action<MoveResultMessage>? OnServerMessageReceived;  // Indicando que o evento pode ser nulo
+    public event Action<MoveResultMessage> OnServerMessageReceived;  // Indicando que o evento pode ser nulo
 
     public async Task<bool> ConnectAsync(string host, int port)
     {
@@ -57,7 +57,7 @@ public class ClientConnection
     public async Task ProcessServerMessageAsync(string message)
     {
         var moveResultMessage = JsonConvert.DeserializeObject<MoveResultMessage>(message);
-        OnServerMessageReceived?.Invoke(moveResultMessage);
+        OnServerMessageReceived.Invoke(moveResultMessage);
     }
 
     public async Task StartReceivingMessages()
@@ -68,7 +68,7 @@ public class ClientConnection
             {
                 while (_client.Connected)
                 {
-                    Console.WriteLine("Waiting for server message...");  // Log adicional
+                    Console.WriteLine("Waiting for server message...");
                     var message = await ReceiveMessageAsync();
                     if (message != null)
                     {

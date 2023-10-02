@@ -1,46 +1,28 @@
 ﻿namespace CampoMinadoCliente
 {
-
     public partial class PortForm : Form
     {
-        private TextBox _portTextBox;
-        private Button _connectButton;
         private ClientConnection _clientConnection;
 
         public int Port { get; private set; }
 
         public PortForm(ClientConnection clientConnection)
         {
+            InitializeComponent();
             _clientConnection = clientConnection;
-
-            _portTextBox = new TextBox
-            {
-                Location = new Point(15, 15),
-                Size = new Size(100, 20)
-            };
-            Controls.Add(_portTextBox);
-
-            _connectButton = new Button
-            {
-                Location = new Point(130, 15),
-                Size = new Size(75, 23),
-                Text = "Connect"
-            };
-            _connectButton.Click += OnConnectButtonClicked;
-            Controls.Add(_connectButton);
+            button1.Click += OnConnectButtonClicked;  // Atualize o evento Click para o novo botão
         }
 
         private async void OnConnectButtonClicked(object sender, EventArgs e)
         {
-            if (int.TryParse(_portTextBox.Text, out int port) && port > 0 && port < 65536)
+            if (int.TryParse(textBox1.Text, out int port) && port > 0 && port < 65536)  // Use textBox1 aqui
             {
                 var isConnected = await _clientConnection.ConnectAsync("localhost", port);
                 if (isConnected)
                 {
                     DialogResult = DialogResult.OK;
-                    this.Hide();  // Esconde o PortForm em vez de fechar
+                    this.Hide();
 
-                    // Criar e mostrar o Form1
                     var form1 = new Form1(_clientConnection);
                     form1.Show();
                 }
@@ -55,8 +37,19 @@
             }
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
 
+        }
 
+        private void label1_Click(object sender, EventArgs e)
+        {
 
+        }
+
+        private void PortForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
