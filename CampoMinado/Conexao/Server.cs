@@ -17,7 +17,7 @@ namespace CampoMinadoServidor
         private TcpClient _player1;
         private Board _board;
         private bool _running;
-        //private SemaphoreSlim _moveSemaphore = new SemaphoreSlim(1, 5);
+        private SemaphoreSlim _moveSemaphore = new SemaphoreSlim(1, 1);
 
         public Server(int port)
         {
@@ -92,7 +92,7 @@ namespace CampoMinadoServidor
                 {
                     Console.WriteLine("Parou aqui essa merda toma no cu");
 
-                    //await _moveSemaphore.WaitAsync();
+                    await _moveSemaphore.WaitAsync();
 
                     Console.WriteLine("Passou dessa merda");
 
@@ -114,6 +114,7 @@ namespace CampoMinadoServidor
 
                         _running = false;
                     }
+                    _moveSemaphore.Release();
                 }
             }
             catch (IOException ex)
@@ -126,10 +127,6 @@ namespace CampoMinadoServidor
                 Console.WriteLine($"Socket Error: {ex.Message}\n{ex.StackTrace}");
                 _running = false;
             }
-            finally
-            {
-                //_moveSemaphore.Release();
-            }
 
             // Move these lines out of the finally block
             _player1?.Close();
@@ -137,11 +134,5 @@ namespace CampoMinadoServidor
             Console.WriteLine("Servidor encerrado.");
         }
 
-        public void Stop()
-        {
-            _running = false;
-            _player1?.Close();  // Close the connection to the player
-            _listener?.Stop();  // Stop listening for new connections
-        }
     }
 }

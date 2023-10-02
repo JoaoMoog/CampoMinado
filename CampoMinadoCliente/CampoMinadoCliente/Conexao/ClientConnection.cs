@@ -11,7 +11,7 @@ public class ClientConnection
     private TcpClient _client = new();  // Inicialização direta
     private StreamReader _reader;
     private StreamWriter _writer;
-    public event Action<MoveResultMessage> OnServerMessageReceived;  // Indicando que o evento pode ser nulo
+    public event Action<MoveResultMessage> OnServerMessageReceived;
 
     public async Task<bool> ConnectAsync(string host, int port)
     {
@@ -56,8 +56,17 @@ public class ClientConnection
 
     public async Task ProcessServerMessageAsync(string message)
     {
-        var moveResultMessage = JsonConvert.DeserializeObject<MoveResultMessage>(message);
-        OnServerMessageReceived.Invoke(moveResultMessage);
+        try
+        {
+            var moveResultMessage = JsonConvert.DeserializeObject<MoveResultMessage>(message);
+            OnServerMessageReceived.Invoke(moveResultMessage);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
+
     }
 
     public async Task StartReceivingMessages()
