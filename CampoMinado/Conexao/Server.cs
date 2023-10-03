@@ -80,7 +80,7 @@ namespace CampoMinadoServidor
             }
             else
             {
-                throw new InvalidOperationException("Client is not connected.");
+                throw new InvalidOperationException("O cliente não está conectado");
             }
         }
 
@@ -88,13 +88,10 @@ namespace CampoMinadoServidor
         {
             try
             {
-                while (_running && _player1.Connected)  // Check if the client is still connected
+                while (_running && _player1.Connected)
                 {
-                    Console.WriteLine("Parou aqui essa merda toma no cu");
 
                     await _moveSemaphore.WaitAsync();
-
-                    Console.WriteLine("Passou dessa merda");
 
                     var messageFromPlayer1 = await ReceiveMessageAsync(_player1);
                     var resultFromPlayer1 = ProcessMessage(messageFromPlayer1);
@@ -106,6 +103,7 @@ namespace CampoMinadoServidor
                         var gameOverMessage = new GameOverMessage
                         {
                             IsVictory = isVictory,
+                            GameOver = true,
                             Winner = _board.CurrentPlayer
                         };
                         var encodedGameOverMessage = MessageEncoder.EncodeGameOverMessage(gameOverMessage);
@@ -119,7 +117,7 @@ namespace CampoMinadoServidor
             }
             catch (IOException ex)
             {
-                Console.WriteLine($"IO Error: {ex.Message}\n{ex.StackTrace}");
+                Console.WriteLine($"Erro: {ex.Message}\n{ex.StackTrace}");
                 _running = false;
             }
             catch (SocketException ex)
@@ -128,7 +126,6 @@ namespace CampoMinadoServidor
                 _running = false;
             }
 
-            // Move these lines out of the finally block
             _player1?.Close();
             _listener?.Stop();
             Console.WriteLine("Servidor encerrado.");

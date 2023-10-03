@@ -11,6 +11,7 @@ namespace Utils
     {
         public bool IsVictory { get; set; }
         public int Winner { get; set; }
+        public bool GameOver { get; set; }
 
     }
 

@@ -38,11 +38,11 @@ public class ClientConnection
         }
         else
         {
-            throw new InvalidOperationException("Connection is not established.");
+            throw new InvalidOperationException("Conexão não está estabelecida.");
         }
     }
 
-    public async Task<string?> ReceiveMessageAsync()  // Indicando que o método pode retornar nulo
+    public async Task<string?> ReceiveMessageAsync() 
     {
         if (_reader != null && _client.Connected)
         {
@@ -50,7 +50,7 @@ public class ClientConnection
         }
         else
         {
-            throw new InvalidOperationException("Connection is not established.");
+            throw new InvalidOperationException("Conexão não está estabelecida.");
         }
     }
 
@@ -58,6 +58,10 @@ public class ClientConnection
     {
         try
         {
+            Console.WriteLine($"Mensagem recebida do servidor: {message}");
+
+            message = message.Trim(new char[] { '\uFEFF', '\u200B' });
+
             var moveResultMessage = JsonConvert.DeserializeObject<MoveResultMessage>(message);
             OnServerMessageReceived.Invoke(moveResultMessage);
         }
@@ -77,7 +81,6 @@ public class ClientConnection
             {
                 while (_client.Connected)
                 {
-                    Console.WriteLine("Waiting for server message...");
                     var message = await ReceiveMessageAsync();
                     if (message != null)
                     {
@@ -92,7 +95,7 @@ public class ClientConnection
             }
             else
             {
-                throw new InvalidOperationException("Connection is not established.");
+                throw new InvalidOperationException("Conexão não está estabelecida.");
             }
         }
         catch (Exception ex)

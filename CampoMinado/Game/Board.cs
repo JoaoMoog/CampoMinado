@@ -21,12 +21,10 @@ class Board
 
     private void InitializeBoard()
     {
-        // Escolha um número aleatório de minas entre 5 e 8
         var random = new Random();
-        int mineCount = random.Next(5, 9);
+        int mineCount = random.Next(13, 18);
         var placedMines = 0;
 
-        // Inicialize células minadas
         while (placedMines < mineCount)
         {
             var row = random.Next(Rows);
@@ -39,7 +37,6 @@ class Board
             }
         }
 
-        // Inicialize células não-minadas
         for (var row = 0; row < Rows; row++)
         {
             for (var col = 0; col < Columns; col++)
@@ -51,7 +48,6 @@ class Board
             }
         }
 
-        // Calcule o número de minas adjacentes para cada célula
         for (var row = 0; row < Rows; row++)
         {
             for (var col = 0; col < Columns; col++)
@@ -149,16 +145,16 @@ class Board
         {
             if (cell.IsMine && cell.IsRevealed)
             {
-                return true;  // Uma mina foi revelada, derrota
+                return true; 
             }
 
-            if (!cell.IsMine && !cell.IsRevealed)
+            if (!cell.IsRevealed)
             {
-                return false;  // Algumas células não-minadas ainda não foram reveladas, o jogo continua
+                return false; 
             }
         }
 
-        isVictory = true;  // Todas as células não-minadas foram reveladas, vitória
+        isVictory = true;
         return true;
     }
 

@@ -62,7 +62,7 @@ namespace CampoMinadoCliente
                 var moveMessage = new MoveResultMessage
                 {
                     Action = "Move",
-                    Player = 1,  // Fixed player number to 1 as it's a single player game
+                    Player = 1,
                     Row = row,
                     Column = column,
                     MoveType = moveType
@@ -73,12 +73,23 @@ namespace CampoMinadoCliente
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Ocorreu um erro: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void HandleServerMessage(MoveResultMessage message)
         {
+            if (message.GameOver)
+            {
+                string result = message.IsVictory ? "Você ganhou!" : "Você perdeu!";
+                MessageBox.Show(result, "Fim de Jogo", MessageBoxButtons.OK);
+                foreach (Button btn in _buttons)
+                {
+                    btn.Enabled = false;
+                }
+                return;
+            }
+
             foreach (var cell in message.UpdatedCells)
             {
                 var button = _buttons[cell.Row, cell.Column];
@@ -86,8 +97,8 @@ namespace CampoMinadoCliente
                 {
                     if (cell.IsMine)
                     {
-                        button.Text = "";  // Limpa o texto
-                        button.Image = Resources.resized_bomb;  // Assume que você tem um ícone de mina em seus recursos
+                        button.Text = "";
+                        button.Image = Resources.resized_bomb;
                         button.BackColor = Color.Red;
                     }
                     else
@@ -100,79 +111,28 @@ namespace CampoMinadoCliente
                 }
                 else if (cell.IsFlagged)
                 {
-                    button.Text = "";  // Limpa o texto
-                    button.Image = Resources.resized_flag;  // Assume que você tem um ícone de bandeira em seus recursos
+                    button.Text = "";
+                    button.Image = Resources.resized_flag;
                     button.BackColor = Color.Yellow;
                 }
                 else
                 {
-                    button.Text = "";  // Limpa o texto
-                    button.Image = null;  // Limpa a imagem
+                    button.Text = "";
+                    button.Image = null;
                     button.BackColor = Color.LightGray;
                 }
             }
-
-            if (message.GameOver)
+            if (message.IsMine)
             {
-                string result = message.IsVictory ? "Victory!" : "Defeat!";
-                MessageBox.Show(result, "Game Over", MessageBoxButtons.OK);
+                MessageBox.Show("Você perdeu!", "Fim de Jogo", MessageBoxButtons.OK);
                 foreach (Button btn in _buttons)
                 {
                     btn.Enabled = false;
                 }
-
-                // Pergunte ao jogador se ele gostaria de jogar novamente
-                var playAgain = MessageBox.Show("Gostaria de jogar novamente?", "Jogar Novamente?", MessageBoxButtons.YesNo);
-                if (playAgain == DialogResult.Yes)
-                {
-                    ResetBoard();  // Este método precisa ser implementado para redefinir o tabuleiro
-                }
-            }
-        }
-
-        // Método para redefinir o tabuleiro
-        private async void ResetBoard()
-        {
-            // Remove todos os botões existentes do tabuleiro
-            foreach (Button btn in _buttons)
-            {
-                Controls.Remove(btn);
             }
 
-            // Redefine a matriz de botões
-            _buttons = new Button[_rows, _columns];
-
-            // Recria os botões
-            for (int row = 0; row < _rows; row++)
-            {
-                for (int col = 0; col < _columns; col++)
-                {
-                    var button = new Button
-                    {
-                        Location = new Point(col * 30, row * 30),
-                        Size = new Size(30, 30),
-                        Tag = new Tuple<int, int>(row, col),
-                        Font = new Font("Arial", 10, FontStyle.Bold),
-                        BackColor = Color.LightGray
-                    };
-                    button.Click += OnCellButtonClicked;
-                    _buttons[row, col] = button;
-                    Controls.Add(button);
-                }
-            }
-
-            // Notifica o servidor para iniciar um novo jogo
-            // Você precisará implementar a lógica para enviar uma mensagem ao servidor
-            // para começar um novo jogo.
-            // Por exemplo:
-            // var newGameMessage = new NewGameMessage();
-            // var messageJson = JsonConvert.SerializeObject(newGameMessage);
-            // await _clientConnection.SendMessageAsync(messageJson);
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
 
         }
+
     }
 }
