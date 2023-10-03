@@ -14,7 +14,6 @@ static class Program
 
         var clientConnection = new ClientConnection();
 
-        // Passa a clientConnection para o PortForm
         Application.Run(new PortForm(clientConnection));
     }
 

@@ -17,7 +17,7 @@ namespace Utils
 
     public static class MessageEncoder
     {
-        public static string EncodeGameOverMessage(GameOverMessage message)
+        public static string SerializarGameOverMensagem(GameOverMessage message)
         {
             return JsonConvert.SerializeObject(message);
         }

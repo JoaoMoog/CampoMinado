@@ -17,35 +17,46 @@ namespace CampoMinadoCliente
         public Form1(ClientConnection clientConnection)
         {
             _clientConnection = clientConnection;
-            _clientConnection.OnServerMessageReceived += HandleServerMessage;
+            _clientConnection.OnServerMessageReceived += ManipularMensagemDoServidor;
             InitializeComponent();
-            InitializeBoard();
-            _clientConnection.StartReceivingMessages();
+            IniciarTabuleiro();
+            _clientConnection.IniciarRecebimentoDeMensagem();
         }
 
-        private void InitializeBoard()
+        private void IniciarTabuleiro()
         {
             _buttons = new Button[_rows, _columns];
+
+            // Calcular a largura e altura total do tabuleiro
+            int totalWidth = _columns * 30;
+            int totalHeight = _rows * 30;
+
+            // Determinar a posição inicial
+            int startX = (this.ClientSize.Width - totalWidth) / 2;
+            int startY = (this.ClientSize.Height - totalHeight) / 2;
+
             for (int row = 0; row < _rows; row++)
             {
                 for (int col = 0; col < _columns; col++)
                 {
                     var button = new Button
                     {
-                        Location = new Point(col * 30, row * 30),
+                        // Use a posição inicial ao definir a localização de cada botão
+                        Location = new Point(startX + col * 30, startY + row * 30),
                         Size = new Size(30, 30),
                         Tag = new Tuple<int, int>(row, col),
                         Font = new Font("Arial", 10, FontStyle.Bold),
                         BackColor = Color.Gray
                     };
-                    button.Click += OnCellButtonClicked;
+                    button.Click += AoClicarNoBotao;
                     _buttons[row, col] = button;
                     Controls.Add(button);
                 }
             }
         }
 
-        private async void OnCellButtonClicked(object sender, EventArgs e)
+
+        private async void AoClicarNoBotao(object sender, EventArgs e)
         {
             try
             {
@@ -70,7 +81,7 @@ namespace CampoMinadoCliente
                 };
 
                 var messageJson = JsonConvert.SerializeObject(moveMessage);
-                await _clientConnection.SendMessageAsync(messageJson);
+                await _clientConnection.EnviarMensagem(messageJson);
             }
             catch (Exception ex)
             {
@@ -78,7 +89,7 @@ namespace CampoMinadoCliente
             }
         }
 
-        private void HandleServerMessage(MoveResultMessage message)
+        private void ManipularMensagemDoServidor(MoveResultMessage message)
         {
             if (message.GameOver)
             {
@@ -99,7 +110,7 @@ namespace CampoMinadoCliente
                     if (cell.IsMine)
                     {
                         button.Text = "";
-                        button.Image = Resources.resized_bomb;
+                        button.Image = Resources.minesweeper_resized_30x30;
                         button.BackColor = Color.Red;
                     }
                     else
@@ -132,8 +143,11 @@ namespace CampoMinadoCliente
                 }
             }
 
-
         }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

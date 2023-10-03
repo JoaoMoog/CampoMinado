@@ -28,19 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
+            reset = new Button();
             SuspendLayout();
+            // 
+            // reset
+            // 
+            reset.Location = new Point(114, 333);
+            reset.Name = "reset";
+            reset.Size = new Size(126, 23);
+            reset.TabIndex = 0;
+            reset.Text = "Jogar Novamente";
+            reset.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(312, 304);
+            ClientSize = new Size(354, 368);
+            Controls.Add(reset);
             Name = "Form1";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Campo Minado";
+            Load += Form1_Load;
             ResumeLayout(false);
         }
 
 
         #endregion
+
+        private Button reset;
     }
 }

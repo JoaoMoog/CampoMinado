@@ -16,7 +16,7 @@ namespace CampoMinadoServidor {
             }
 
             var server = new Server(port);
-            await server.StartAsync();
+            await server.Iniciar();
 
         }
     }

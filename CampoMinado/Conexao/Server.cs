@@ -13,18 +13,29 @@ namespace CampoMinadoServidor
 {
     class Server
     {
+        // Ouvinte para aceitar conexões TCP de clientes.
         private TcpListener _listener;
+
+        // Representa o jogador 1 conectado ao servidor.
         private TcpClient _player1;
+
+        // Representa o tabuleiro do jogo.
         private Board _board;
+
+        // Flag para determinar se o jogo está em execução.
         private bool _running;
+
+        // Semáforo para sincronizar as jogadas.
         private SemaphoreSlim _moveSemaphore = new SemaphoreSlim(1, 1);
 
+        // Construtor do servidor, define em qual porta o servidor irá ouvir.
         public Server(int port)
         {
             _listener = new TcpListener(IPAddress.Any, port);
         }
 
-        public async Task StartAsync()
+        // Método para iniciar o servidor e aceitar um jogador.
+        public async Task Iniciar()
         {
             _listener.Start();
             Console.WriteLine("Aguardando jogador...");
@@ -38,14 +49,16 @@ namespace CampoMinadoServidor
             await RunGameLoop();
         }
 
-        private MoveResultMessage ProcessMessage(MoveResultMessage message)
+        // Processa a mensagem de movimento do jogador e executa o movimento no tabuleiro.
+        private MoveResultMessage ProcessarMensagem(MoveResultMessage message)
         {
             Board.MoveType movetype;
             Enum.TryParse(message.MoveType, out movetype);
-            return _board.MakeMove(message.Row, message.Column, movetype);
+            return _board.FazerMovimento(message.Row, message.Column, movetype);
         }
 
-        private string EncodeMoveResult(MoveResultMessage result)
+        // Serializa a resposta do movimento para ser enviada de volta ao jogador.
+        private string SerializarMensagem(MoveResultMessage result)
         {
             var resultMessage = new MoveResultMessage
             {
@@ -55,28 +68,30 @@ namespace CampoMinadoServidor
             return JsonConvert.SerializeObject(resultMessage);
         }
 
-        private async Task<MoveResultMessage> ReceiveMessageAsync(TcpClient client)
+        // Lê uma mensagem do cliente.
+        private async Task<MoveResultMessage> MensagemRecebida(TcpClient client)
         {
             if (client.Connected && client.GetStream() != null)
             {
                 var stream = client.GetStream();
                 var reader = new StreamReader(stream, Encoding.UTF8);
                 var messageJson = await reader.ReadLineAsync();
-                Console.WriteLine($"Mensagem recebida do cliente: {messageJson}");  // Log the message
+                Console.WriteLine($"Mensagem recebida do cliente: {messageJson}");
                 var message = JsonConvert.DeserializeObject<MoveResultMessage>(messageJson);
                 return message;
             }
             throw new InvalidOperationException("Cliente não conectado");
         }
 
-        private async Task SendMessageAsync(TcpClient client, string message)
+        // Envia uma mensagem para o cliente.
+        private async Task EnviarMensagem(TcpClient client, string message)
         {
             if (client.Connected && client.GetStream() != null)
             {
                 var stream = client.GetStream();
                 var writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true };
                 await writer.WriteLineAsync(message);
-                Console.WriteLine($"Mensagem enviada para o cliente: {message}");  // Log the message
+                Console.WriteLine($"Mensagem enviada para o cliente: {message}");
             }
             else
             {
@@ -84,21 +99,21 @@ namespace CampoMinadoServidor
             }
         }
 
+        // Loop principal do jogo, onde as mensagens são processadas e as respostas são enviadas aos jogadores.
         private async Task RunGameLoop()
         {
             try
             {
                 while (_running && _player1.Connected)
                 {
-
                     await _moveSemaphore.WaitAsync();
 
-                    var messageFromPlayer1 = await ReceiveMessageAsync(_player1);
-                    var resultFromPlayer1 = ProcessMessage(messageFromPlayer1);
-                    var responseToPlayer1 = EncodeMoveResult(resultFromPlayer1);
-                    await SendMessageAsync(_player1, responseToPlayer1);
+                    var messageFromPlayer1 = await MensagemRecebida(_player1);
+                    var resultFromPlayer1 = ProcessarMensagem(messageFromPlayer1);
+                    var responseToPlayer1 = SerializarMensagem(resultFromPlayer1);
+                    await EnviarMensagem(_player1, responseToPlayer1);
 
-                    if (_board.IsGameOver(out bool isVictory))
+                    if (_board.GameOver(out bool isVictory))
                     {
                         var gameOverMessage = new GameOverMessage
                         {
@@ -106,9 +121,9 @@ namespace CampoMinadoServidor
                             GameOver = true,
                             Winner = _board.CurrentPlayer
                         };
-                        var encodedGameOverMessage = MessageEncoder.EncodeGameOverMessage(gameOverMessage);
+                        var encodedGameOverMessage = MessageEncoder.SerializarGameOverMensagem(gameOverMessage);
 
-                        await SendMessageAsync(_player1, encodedGameOverMessage);
+                        await EnviarMensagem(_player1, encodedGameOverMessage);
 
                         _running = false;
                     }
@@ -130,6 +145,5 @@ namespace CampoMinadoServidor
             _listener?.Stop();
             Console.WriteLine("Servidor encerrado.");
         }
-
     }
 }

@@ -8,29 +8,39 @@ using Newtonsoft.Json;
 
 public class ClientConnection
 {
-    private TcpClient _client = new();  // Inicialização direta
+    // TcpClient usado para a comunicação com o servidor.
+    private TcpClient _client = new();
+
+    // Leitor para ler mensagens do servidor.
     private StreamReader _reader;
+
+    // Escritor para enviar mensagens para o servidor.
     private StreamWriter _writer;
+
+    // Evento disparado quando uma mensagem é recebida do servidor.
     public event Action<MoveResultMessage> OnServerMessageReceived;
 
+    // Método para conectar ao servidor. Retorna 'true' se a conexão for bem-sucedida, 'false' caso contrário.
     public async Task<bool> ConnectAsync(string host, int port)
     {
         try
         {
             await _client.ConnectAsync(host, port);
             var stream = _client.GetStream();
+
             _reader = new StreamReader(stream, Encoding.UTF8);
             _writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true };
-            return true;  // Conexão bem-sucedida
+            return true;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Erro ao conectar: {ex.Message}");
-            return false;  // Falha na conexão
+            return false;
         }
     }
 
-    public async Task SendMessageAsync(string message)
+    // Método para enviar uma mensagem para o servidor.
+    public async Task EnviarMensagem(string message)
     {
         if (_writer != null && _client.Connected)
         {
@@ -42,7 +52,8 @@ public class ClientConnection
         }
     }
 
-    public async Task<string?> ReceiveMessageAsync() 
+    // Método para receber uma mensagem do servidor.
+    public async Task<string?> ReceberMensagem()
     {
         if (_reader != null && _client.Connected)
         {
@@ -54,6 +65,7 @@ public class ClientConnection
         }
     }
 
+    // Processa a mensagem recebida do servidor, deserializando-a e disparando o evento correspondente.
     public async Task ProcessServerMessageAsync(string message)
     {
         try
@@ -70,10 +82,10 @@ public class ClientConnection
             Console.WriteLine(ex);
             throw;
         }
-
     }
 
-    public async Task StartReceivingMessages()
+    // Método que inicia o processo de escuta contínua de mensagens do servidor.
+    public async Task IniciarRecebimentoDeMensagem()
     {
         try
         {
@@ -81,14 +93,13 @@ public class ClientConnection
             {
                 while (_client.Connected)
                 {
-                    var message = await ReceiveMessageAsync();
+                    var message = await ReceberMensagem();
                     if (message != null)
                     {
                         await ProcessServerMessageAsync(message);
                     }
                     else
                     {
-                        // O servidor fechou a conexão
                         break;
                     }
                 }
@@ -100,7 +111,6 @@ public class ClientConnection
         }
         catch (Exception ex)
         {
-            // Trate quaisquer exceções que ocorram
             Console.WriteLine("Error: " + ex.Message);
         }
     }

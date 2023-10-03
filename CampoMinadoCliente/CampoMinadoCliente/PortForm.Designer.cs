@@ -31,6 +31,7 @@ namespace CampoMinadoCliente
         /// </summary>
         private void InitializeComponent()
         {
+            this.StartPosition = FormStartPosition.CenterScreen;
             button1 = new Button();
             label1 = new Label();
             textBox1 = new TextBox();

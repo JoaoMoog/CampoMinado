@@ -63,9 +63,9 @@ namespace CampoMinadoCliente {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap resized_bomb {
+        internal static System.Drawing.Bitmap minesweeper_resized_30x30 {
             get {
-                object obj = ResourceManager.GetObject("resized_bomb", resourceCulture);
+                object obj = ResourceManager.GetObject("minesweeper_resized_30x30", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

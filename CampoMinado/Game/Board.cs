@@ -52,13 +52,13 @@ class Board
         {
             for (var col = 0; col < Columns; col++)
             {
-                _cells[row, col].AdjacentMines = GetAdjacentMineCount(row, col);
+                _cells[row, col].AdjacentMines = BuscarMinasRestantes(row, col);
             }
         }
     }
 
 
-    private int GetAdjacentMineCount(int row, int column)
+    private int BuscarMinasRestantes(int row, int column)
     {
         int mineCount = 0;
         for (int i = -1; i <= 1; i++)
@@ -67,7 +67,7 @@ class Board
             {
                 int newRow = row + i;
                 int newCol = column + j;
-                if (IsInsideBoard(newRow, newCol) && (_cells[newRow, newCol]?.IsMine ?? false))
+                if (EstaDentroDoTabuleiro(newRow, newCol) && (_cells[newRow, newCol]?.IsMine ?? false))
                 {
                     mineCount++;
                 }
@@ -76,14 +76,14 @@ class Board
         return mineCount;
     }
 
-    private bool IsInsideBoard(int row, int column)
+    private bool EstaDentroDoTabuleiro(int row, int column)
     {
         return row >= 0 && row < Rows && column >= 0 && column < Columns;
     }
 
-    private void CascadeReveal(int row, int column, List<Cell> updatedCells)
+    private void RevelacaoEmCascata(int row, int column, List<Cell> updatedCells)
     {
-        if (!IsInsideBoard(row, column) || _cells[row, column].IsRevealed || _cells[row, column].IsFlagged)
+        if (!EstaDentroDoTabuleiro(row, column) || _cells[row, column].IsRevealed || _cells[row, column].IsFlagged)
         {
             return;
         }
@@ -91,19 +91,19 @@ class Board
         _cells[row, column].IsRevealed = true;
         updatedCells.Add(_cells[row, column]);
 
-        if (GetAdjacentMineCount(row, column) == 0)
+        if (BuscarMinasRestantes(row, column) == 0)
         {
             for (int i = -1; i <= 1; i++)
             {
                 for (int j = -1; j <= 1; j++)
                 {
-                    CascadeReveal(row + i, column + j, updatedCells);
+                    RevelacaoEmCascata(row + i, column + j, updatedCells);
                 }
             }
         }
     }
 
-    public MoveResultMessage MakeMove(int row, int column, MoveType moveType)
+    public MoveResultMessage FazerMovimento(int row, int column, MoveType moveType)
     {
         var updatedCells = new List<Cell>();
 
@@ -117,7 +117,7 @@ class Board
                 }
                 else
                 {
-                    CascadeReveal(row, column, updatedCells);
+                    RevelacaoEmCascata(row, column, updatedCells);
                 }
                 break;
 
@@ -138,7 +138,7 @@ class Board
     }
 
 
-    public bool IsGameOver(out bool isVictory)
+    public bool GameOver(out bool isVictory)
     {
         isVictory = false;
         foreach (var cell in _cells)
