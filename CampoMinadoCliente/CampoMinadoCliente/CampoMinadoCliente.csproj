@@ -13,10 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CampoMinado\CampoMinadoServidor.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="GameLibraryNew">
       <HintPath>..\..\..\GameLibraryNew\GameLibraryNew\bin\Release\GameLibraryNew.dll</HintPath>
     </Reference>
