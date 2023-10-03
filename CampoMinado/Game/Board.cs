@@ -132,7 +132,7 @@ class Board
 
         return new MoveResultMessage
         {
-            IsMine = _cells[row, column].IsMine,
+            IsMine = moveType == MoveType.Reveal && _cells[row, column].IsMine,
             UpdatedCells = updatedCells
         };
     }
